@@ -4,21 +4,25 @@ const bodyParser = require('body-parser');
 const webpack = require('webpack');
 const config = require('./webpack.dev.conf.js');
 const _ = require('lodash');
-const thinky = require('thinky')({});
 const bCrypt = require('bcrypt');
 const jwt = require('jwt-simple');
 
 const app = express();
 const router = express.Router();
 const compiler = webpack(config);
-const jsonParser = bodyParser.json();
 const flash = require('connect-flash');
 const passport = require('passport');
 
-var User = require('./models/user.js');
+const pg = require('pg');
+const path = require('path');
+const connectionString = process.env.DATABASE_URL || 'postgres://postgres@localhost:5432/todo';
+
+// var User = require('./models/user.js');
 
 //Express Config
 app.use(flash());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // import necessary modules for Passport
 app.use(passport.initialize());
@@ -27,7 +31,7 @@ const LocalStrategy = require('passport-local').Strategy;
 
 // handle fallback for HTML5 history API
 app.use(require('connect-history-api-fallback')());
-// serve webpack bundle output
+// // serve webpack bundle output
 app.use(require('webpack-dev-middleware')(compiler, {
 	publicPath: config.output.publicPath,
 	stats: {
@@ -40,119 +44,142 @@ app.use(require('webpack-dev-middleware')(compiler, {
 // compilation error display
 app.use(require('webpack-hot-middleware')(compiler));
 
-// Passport needs to be able to serialize and deserialize users to support persistent login sessions
-passport.serializeUser(function(user, done) {
-	done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-	User.get(id).run().then(function(result) {
-		if (null === result) {
-			// no user found
-			done(true, null);
-		} else {
-			// user was succesfully deleted
-			done(null, result);
-		}
-	});
-});
-
-passport.use(new LocalStrategy({
-		usernameField: 'email',
-		passwordField: 'password'
-	},
-	function(email, password, done) {
-		User.filter({ email: email }).run().then(function(result) {
-			console.log(result.length);
-			if (result.length) {
-				var user = result[0];
-				if (isValidPassword(user, password)) {
-					return done(null, user);
-				} else {
-					return done("Email or password is incorrect.", false);
-				}
-			} else {
-				// no user found
-				return done("No user found.", false);
-			}
-		});
-	}));
-
-function isValidPassword(user, password) {
-	return bCrypt.compareSync(password, user.hash);
-};
-
-//ROUTES
-//AUTHENTICATION ROUTES
-router.post('/auth/register', jsonParser, (req, res) => {
-	User.filter({ email: req.body.email }).run().then(function(userArray) {
-		if (userArray[0]) {
-			return res.status(400).json({ error: "Email is already in use." });
-		} else {
-			var user = new User({
-				email: req.body.email.toString(),
-				password: req.body.password
-			});
-			user.save().then(function(result) {
-				return res.send(result);
-			}).error(handleError(res));
-		}
-	});
-});
-
-//Login Route
-router.post('/auth/login', jsonParser, function(req, res, next) {
-	passport.authenticate('local', function(err, user, info) {
-		if (err) {
-			return res.status(400).json({ error: err });
-		}
-		if (user) {
-			//user has authenticated correctly thus we create a JWT token
-			var token = jwt.encode(user, 'lkmaspokjsafpaoskdpa8asda0s9a');
-			return res.json({ success: true, token: 'JWT ' + token });
-		}
-	})(req, res, next);
-});
-
-//Get user info
-router.get('/auth/user', (req, res) => {
-	var splitToken = req.headers.authorization.split(' ');
-	var token = splitToken[2];
-	var decoded = jwt.decode(token, 'lkmaspokjsafpaoskdpa8asda0s9a');
-	User.filter({ id: decoded.id }).run().then(function(result) {
-		var user = result[0];
-		return res.json({ success: true, data: user });
-	});
-});
-
-//Refresh user data
-router.get('/auth/refresh', jsonParser, (req, res) => {
-	return res.json({ status: 'success' });
-});
-
 // DATA ROUTES
-// GET - All User Data
-router.get('/users', (req, res) => {
-	User.run().then(function(result) {
-		return res.json({ success: true, data: result });
-	})
-});
-
-// DELETE - Single User Account
-router.delete('/users/:id', (req, res) => {
-	User.get(req.params.id).then(function(user) {
-		user.delete().then(function(result) {
-			return res.json({ success: true });
+router.get('/todos', (req, res) => {
+	const results = [];
+	// Get a Postgres client from the connection pool
+	pg.connect(connectionString, (err, client, done) => {
+		// Handle connection errors
+		if (err) {
+			done();
+			console.log(err);
+			return res.status(500).json({ success: false, data: err });
+		}
+		// SQL Query > Select Data
+		const query = client.query('SELECT * FROM items ORDER BY id ASC;');
+		// Stream results back one row at a time
+		query.on('row', (row) => {
+			results.push(row);
+		});
+		// After all data is returned, close connection and return results
+		query.on('end', () => {
+			done();
+			return res.json(results);
 		});
 	});
 });
 
-//Error Handling
-function handleError(res) {
-	return function(error) {
-		return res.send(500, { error: error.message });
-	}
-};
+router.get('/todos/:todo_id', (req, res) => {
+	const results = [];
+	// Grab data from the URL parameters
+	const id = req.params.todo_id;
+	// Get a Postgres client from the connection pool
+	pg.connect(connectionString, (err, client, done) => {
+		// Handle connection errors
+		if (err) {
+			done();
+			console.log(err);
+			return res.status(500).json({ success: false, data: err });
+		}
+		// SQL Query > Select Data
+		const query = client.query("SELECT * FROM items WHERE id = '" + id + "' ORDER BY id ASC");
+		// Stream results back one row at a time
+		query.on('row', (row) => {
+			results.push(row);
+		});
+		// After all data is returned, close connection and return results
+		query.on('end', function() {
+			done();
+			return res.json(results);
+		});
+	});
+});
+
+router.post('/todos', (req, res, next) => {
+	const results = [];
+	// Grab data from http request
+	const data = { text: req.body.text, complete: false };
+	// Get a Postgres client from the connection pool
+	pg.connect(connectionString, (err, client, done) => {
+		// Handle connection errors
+		if (err) {
+			done();
+			console.log(err);
+			return res.status(500).json({ success: false, data: err });
+		}
+		// SQL Query > Insert Data
+		client.query('INSERT INTO items(text, complete) values($1, $2)', [data.text, data.complete]);
+		// SQL Query > Select Data
+		const query = client.query('SELECT * FROM items ORDER BY id ASC');
+		// Stream results back one row at a time
+		query.on('row', (row) => {
+			results.push(row);
+		});
+		// After all data is returned, close connection and return results
+		query.on('end', () => {
+			done();
+			return res.json(results);
+		});
+	});
+});
+
+router.put('/todos/:todo_id', (req, res, next) => {
+	const results = [];
+	// Grab data from the URL parameters
+	const id = req.params.todo_id;
+	// Grab data from http request
+	const data = { text: req.body.text, complete: req.body.complete };
+	// Get a Postgres client from the connection pool
+	pg.connect(connectionString, (err, client, done) => {
+		// Handle connection errors
+		if (err) {
+			done();
+			console.log(err);
+			return res.status(500).json({ success: false, data: err });
+		}
+		// SQL Query > Update Data
+		client.query('UPDATE items SET text=($1), complete=($2) WHERE id=($3)', [data.text, data.complete, id]);
+		// SQL Query > Select Data
+		const query = client.query("SELECT * FROM items ORDER BY id ASC");
+		// Stream results back one row at a time
+		query.on('row', (row) => {
+			results.push(row);
+		});
+		// After all data is returned, close connection and return results
+		query.on('end', function() {
+			done();
+			return res.json(results);
+		});
+	});
+});
+
+router.delete('/todos/:todo_id', (req, res, next) => {
+	const results = [];
+	// Grab data from the URL parameters
+	const id = req.params.todo_id;
+	// Get a Postgres client from the connection pool
+	pg.connect(connectionString, (err, client, done) => {
+		// Handle connection errors
+		if (err) {
+			done();
+			console.log(err);
+			return res.status(500).json({ success: false, data: err });
+		}
+		// SQL Query > Delete Data
+		client.query('DELETE FROM items WHERE id=($1)', [id]);
+		// SQL Query > Select Data
+		var query = client.query('SELECT * FROM items ORDER BY id ASC');
+		// Stream results back one row at a time
+		query.on('row', (row) => {
+			results.push(row);
+		});
+		// After all data is returned, close connection and return results
+		query.on('end', () => {
+			done();
+			return res.json(results);
+		});
+	});
+});
 
 //Server port
 app.use('/api', router);

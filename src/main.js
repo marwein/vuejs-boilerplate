@@ -9,6 +9,8 @@ import Register from './components/pages/Register.vue';
 import Hello from './components/pages/Hello.vue';
 import Login from './components/pages/Login.vue';
 import Users from './components/pages/Users.vue';
+import Todo from './components/pages/Todo.vue';
+import TodoSingle from './components/pages/TodoSingle.vue';
 
 Vue.use(Resource);
 Vue.use(Router);
@@ -20,7 +22,9 @@ var router = new Router({
 		{ path: '/', component: Hello },
 		{ path: '/users', component: Users },
 		{ path: '/register', component: Register },
-		{ path: '/login', component: Login }
+		{ path: '/login', component: Login },
+		{ path: '/todo', component: Todo },
+		{ name: 'todoItem', path: '/todo/:id', component: TodoSingle }
 	]
 });
 

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@websanova/vue-auth": "^1.0.10-dev",
+    "axios": "^0.15.2",
     "babel-runtime": "^6.0.0",
     "bcrypt": "^0.8.7",
     "body-parser": "^1.15.2",
@@ -22,8 +23,7 @@
     "nodemon": "^1.10.2",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
-    "rethinkdbdash": "^2.3.23",
-    "thinky": "^2.3.6",
+    "pg": "^6.1.0",
     "vue": "^2.0.1",
     "vue-resource": "^1.0.3",
     "vue-router": "^2.0.0"
