@@ -14,7 +14,6 @@ const passport = require('passport');
 const pg = require('pg');
 const path = require('path');
 const connectionString = process.env.DATABASE_URL || 'postgres://postgres@localhost:5432/todo';
-const Model = require('./model/models.js')
 
 //Express Config
 app.use(flash());

@@ -11,11 +11,16 @@ import Users from './components/pages/Users.vue';
 import Todo from './components/pages/Todo.vue';
 import TodoSingle from './components/pages/TodoSingle.vue';
 
+//Auth Setup
+import auth from './auth'
+// Check the user's auth status when the app starts
+auth.checkAuth();
+
 Vue.use(Resource);
 Vue.use(Router);
 
 // Router
-var router = new Router({
+export var router = new Router({
 	mode: 'history',
 	routes: [
 		{ path: '/', component: Hello },
@@ -28,6 +33,7 @@ var router = new Router({
 });
 
 Vue.http.options.root = 'http://localhost:8090/api';
+Vue.http.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('id_token');
 
 const app = new Vue({
 	router,

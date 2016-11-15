@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import auth from '../../auth'
+
 export default {
   data () {
     return {
@@ -33,18 +35,11 @@ export default {
   computed: {},
   methods: {
     submit() {
-      this.$http.post('/api/auth/login', {
+      var credentials = {
         username: this.body.username,
-        password: this.body.password,
-      })
-      .then(function (response) {
-        if (response.status == 200) {
-          window.location.href = '/users';
-        }
-      })
-      .catch(function (error) {
-        this.error = error.data.error;
-      });
+        password: this.body.password
+      };
+      auth.login(this, credentials, 'users');
     }
   },
   components: {}

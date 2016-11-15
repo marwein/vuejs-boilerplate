@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import auth from '../../auth.js'
+
 export default {
   data () {
     return {
@@ -46,6 +48,11 @@ export default {
         }
       })
     },
+  },
+  route: {
+    canActivate() {
+      return auth.user.authenticated
+    }
   },
   components: {}
 }
