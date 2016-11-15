@@ -10,9 +10,9 @@
           <th>Delete</th>
         </tr>
       </thead>
-      <tbody v-for="user in users.data">
+      <tbody v-for="user in users">
         <tr>
-          <td>{{ user.email }}</td>
+          <td>{{ user.username }}</td>
           <td>{{ user.id }}</td>
           <td>
             <a v-on:click="remove(user.id)">
@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     remove (id) {
-      this.$http.delete('http://localhost:8090/api/users/' + id).then(response => {
+      this.$http.delete('http://localhost:8090/api/auth/users/' + id).then(response => {
         if (response.status == 200) {
            location.reload(true);
         }

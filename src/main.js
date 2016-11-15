@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import VueAuth from '@websanova/vue-auth';
 import Router from 'vue-router';
 import Resource from 'vue-resource';
 import App from './App';
@@ -26,11 +25,6 @@ var router = new Router({
 		{ path: '/todo', component: Todo },
 		{ name: 'todoItem', path: '/todo/:id', component: TodoSingle }
 	]
-});
-
-Vue.use(require('@websanova/vue-auth'), {
-	loginData: { url: 'auth/login', method: 'POST', redirect: null },
-	router: router
 });
 
 Vue.http.options.root = 'http://localhost:8090/api';

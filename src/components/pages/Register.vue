@@ -7,8 +7,8 @@
         <strong>Oh snap!</strong> {{ error }}
       </div>
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="text" class="form-control" v-model="body.email" id="email" placeholder="Email">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" v-model="body.username" id="username" placeholder="Username">
       </div>
       <div class="form-group">
         <label for="password">Password</label>
@@ -25,7 +25,7 @@ export default {
     return {
       error: null,
       body: {
-        email: '',
+        username: '',
         password: ''
       }
     };
@@ -33,16 +33,18 @@ export default {
   computed: {},
   methods: {
     submit() {
-      this.$auth.register({
-        body: this.body,
-        redirect: '/users',
-        success: function (res) {
-          console.log("Great success");
-        },
-        error: function (res) {
-          this.error = res.data.error;
+      this.$http.post('/api/auth/register', {
+        username: this.body.username,
+        password: this.body.password,
+      })
+      .then(function (response) {
+        if (response.status == 200) {
+          window.location.href = '/login';
         }
-       });
+      })
+      .catch(function (error) {
+        this.error = error.data.error;
+      });
     }
   },
   components: {}

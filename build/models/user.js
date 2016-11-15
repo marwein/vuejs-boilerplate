@@ -1,40 +1,38 @@
-// var thinky = require('thinky')({});
-// var type = thinky.type;
-// var bcrypt = require('bcrypt');
-//
-// var User = thinky.createModel('User', {
-// 	email: type.string(),
-// 	firstName: type.string(),
-// 	lastName: type.string(),
-// 	hash: type.string(),
-// 	attempts: type.number().default(0)
-// });
-//
-// User.pre('save', function(next) {
-// 	var password = this.password || '';
-// 	delete this.password;
-// 	if (!this.hash) {
-// 		this.hash = bcrypt.hashSync(password, 10);
-// 	}
-// 	return next();
-// });
-//
-// User.define('public', function() {
-// 	delete this.hash;
-// 	return this;
-// });
-//
-// User.define('authenticate', function(password) {
-// 	if (bcrypt.compareSync(password, this.hash) && this.attempts < 20) {
-// 		this.attempts = 0;
-// 		this.save();
-// 		delete this.hash;
-// 		return this;
-// 	} else {
-// 		this.attempts++;
-// 		this.save();
-// 		return false;
-// 	}
-// });
-//
-// module.exports = User;
+// app/model/User.js
+var Sequelize = require('sequelize');
+
+var attributes = {
+	username: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		unique: true,
+		validate: {
+			is: /^[a-z0-9\_\-]+$/i,
+		}
+	},
+	email: {
+		type: Sequelize.STRING,
+		validate: {
+			isEmail: true
+		}
+	},
+	firstName: {
+		type: Sequelize.STRING,
+	},
+	lastName: {
+		type: Sequelize.STRING,
+	},
+	password: {
+		type: Sequelize.STRING,
+	},
+	salt: {
+		type: Sequelize.STRING
+	}
+};
+
+var options = {
+	freezeTableName: true
+};
+
+module.exports.attributes = attributes;
+module.exports.options = options;

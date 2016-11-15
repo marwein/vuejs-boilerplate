@@ -19,4 +19,8 @@ export default {
 html, p, h1, h2, h3, h4, h5, a {
     font-family: 'Noto Sans', sans-serif !important;
 }
+
+.container {
+  padding-top: 2%;
+}
 </style>
