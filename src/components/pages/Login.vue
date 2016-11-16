@@ -6,13 +6,18 @@
       <div v-show="error" class="alert alert-danger" role="alert">
         <strong>Oh snap!</strong> {{ error }}
       </div>
+      <div class="alert alert-warning" role="alert" v-show="errors.any()">
+        <ul v-for="error in errors.all()">
+          <li>{{error}}</li>
+        </ul>
+      </div>
       <div class="form-group">
-        <label for="email">Username</label>
-        <input type="text" class="form-control" v-model="body.username" id="email" placeholder="Username">
+        <label for="email">Email</label>
+        <input v-validate data-rules="required|email" type="text" class="form-control" v-model="body.email" name="email" id="email" placeholder="sample@email.com">
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" class="form-control" v-model="body.password" id="password" placeholder="******">
+        <input v-validate data-rules="required" name="password" type="password" class="form-control" v-model="body.password" id="password" placeholder="******">
       </div>
       <button type="submit" class="btn btn-primary">Login</button>
     </form>
@@ -27,7 +32,7 @@ export default {
     return {
       error: null,
       body: {
-        username: '',
+        email: '',
         password: ''
       }
     };
@@ -36,10 +41,10 @@ export default {
   methods: {
     submit() {
       var credentials = {
-        username: this.body.username,
+        email: this.body.email,
         password: this.body.password
       };
-      auth.login(this, credentials, 'users');
+      auth.login(this, credentials, 'todo');
     }
   },
   components: {}

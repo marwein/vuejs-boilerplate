@@ -6,13 +6,17 @@
       <thead class="thead thead-inverse">
         <tr>
           <th>Email</th>
+          <th>First Name</th>
+          <th>Last Name</th>
           <th>ID</th>
           <th>Delete</th>
         </tr>
       </thead>
       <tbody v-for="user in users">
         <tr>
-          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.firstname }}</td>
+          <td>{{ user.lastname }}</td>
           <td>{{ user.id }}</td>
           <td>
             <a v-on:click="remove(user.id)">
@@ -27,15 +31,13 @@
 
 <script>
 import auth from '../../auth.js'
-
 export default {
   data () {
     return {
       users: []
     }
   },
-  computed: {},
-  mounted () {
+  created () {
     this.$http.get('http://localhost:8090/api/users').then(response => {
       this.users = response.data;
     });
@@ -48,13 +50,7 @@ export default {
         }
       })
     },
-  },
-  route: {
-    canActivate() {
-      return auth.user.authenticated
-    }
-  },
-  components: {}
+  }
 }
 </script>
 

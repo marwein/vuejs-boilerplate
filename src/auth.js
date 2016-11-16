@@ -6,7 +6,7 @@ export default {
 	},
 	login(context, creds, redirect) {
 		context.$http.post('/api/auth/login', {
-				username: creds.username,
+				email: creds.email,
 				password: creds.password
 			})
 			.then(response => {
@@ -22,18 +22,18 @@ export default {
 	},
 	signup(context, creds, redirect) {
 		context.$http.post('/api/auth/register', {
-				username: creds.username,
+				email: creds.email,
+				firstName: creds.firstName,
+				lastName: creds.lastName,
 				password: creds.password
 			})
 			.then(response => {
-				localStorage.setItem('id_token', response.data.token);
-				this.user.authenticated = true;
-				if (redirect) {
-					router.push(redirect)
+				if (response.data.success == true) {
+					router.push('/login');
 				};
 			})
 			.catch(function(error) {
-				console.log(error);
+				// console.log(error);
 				this.error = error;
 			});
 	},
@@ -51,7 +51,7 @@ export default {
 	},
 	getAuthHeader() {
 		return {
-			'Authorization': 'Bearer ' + localStorage.getItem('id_token')
+			'Authorization': localStorage.getItem('id_token')
 		}
 	}
 }
