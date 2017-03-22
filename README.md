@@ -13,7 +13,12 @@ Includes
 
 ## Build Setup
 
+### Client side
+
 ``` bash
+# move to client directory
+cd client
+
 # install dependencies
 npm install
 
@@ -22,6 +27,25 @@ npm run dev
 
 # build for production with minification
 npm run build
+```
+
+### Server side
+
+Load PostgreSQL database with `create_tables.sql` file in 'server/sql'.
+
+``` bash
+# move to server directory
+cd server
+
+# install dependencies
+npm install
+
+# run the server
+DATABASE_URL='postgres://postgres@localhost:5432/todo' \
+email='myemail@gmail.com' \
+password='mypassword' \
+PORT=3000 \
+npm start
 ```
 
 ## CHANGE LOG
