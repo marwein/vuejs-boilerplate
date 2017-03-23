@@ -8,6 +8,9 @@ CREATE TABLE public.users
    firstname text,
    lastname text,
    verify_token text,
+   verified_email boolean,
+   resetpasstoken text,
+   resetpassexpiry text,
    role text
 )
 WITH (
