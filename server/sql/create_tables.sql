@@ -23,6 +23,7 @@ CREATE TABLE public.notes
 (
    id serial,
    title text,
+   text text,
    createdby text,
    createdon date
 )
