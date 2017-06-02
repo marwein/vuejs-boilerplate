@@ -1,7 +1,31 @@
 # vuejs-boilerplate
 
-### WANT TO HELP?
-I need a hand figuring out how to deploy this to a Digital Ocean server for demo purposes. Give me a shout!
+## Status Update from Owner
+
+Hi all, just wanted to chime in here as I've obviously been quite inactive hah...
+I'm currently on vacation and will be back to full working force around June 7th (one week from now).
+
+My status update:
+
+I essentially forked this project and created a 'new' boilerplate for myself (currently private on gitlab) as I'm hoping to launch a few MVPs with it.
+
+It still uses this boilerplate as a basis, but I've added a few things and improved a lot:
+
+Sparkpost email integration
+Authentication/roles fully complete using JWT
+Fully deployed (after many hours of struggle!)
+Various improvements to everything like UI, server code, etc
+
+Here you can see the working prototype... I'm hoping to launch this in the next few weeks, if you guys want to go through and try and break things, please give it a shot!
+
+www.travelcurated.com
+
+So essentially, when this travel curated site is MVP ready (soon) I will be cloning it, stripping it of all travel related specifics, rebranding it as the vue-boilerplate, and then I will release it into the wild in this repo (or another one, we will see).
+
+That will put this repo as an almost 100% ready to clone boilerplate where you guys can clone it and launch a site quickly (which was my original purpose with this project).
+
+---
+
 
 #### A Vue.js Boilerplate Project
 Includes
